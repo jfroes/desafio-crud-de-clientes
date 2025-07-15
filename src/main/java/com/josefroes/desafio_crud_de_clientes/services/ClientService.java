@@ -4,6 +4,7 @@ import com.josefroes.desafio_crud_de_clientes.dto.ClientDTO;
 import com.josefroes.desafio_crud_de_clientes.entities.Client;
 import com.josefroes.desafio_crud_de_clientes.repositories.ClientRepository;
 import com.josefroes.desafio_crud_de_clientes.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,12 +43,17 @@ public class ClientService {
 
     @Transactional
     public ClientDTO update(Long id, ClientDTO dto){
-        Client entity = repository.getReferenceById(id);
 
-        copyDtoToEntity(entity, dto);
-        entity = repository.save(entity);
+        try {
+            Client entity = repository.getReferenceById(id);
 
-        return new ClientDTO(entity);
+            copyDtoToEntity(entity, dto);
+            entity = repository.save(entity);
+
+            return new ClientDTO(entity);
+        }catch (EntityNotFoundException e){
+            throw new ResourceNotFoundException("Recurso Não encontrado.");
+        }
     }
 
     @Transactional
